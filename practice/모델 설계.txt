@@ -1,0 +1,62 @@
+Basic Amount 기초금액
+Estimated Price 예정가격
+Price range 예가범위 
+Lower bid rate 낙찰하한율
+
+Successful bid amount 낙찰금액
+
+조달청 예가범위 3%
+
+기초금액의 97% ~ 103% 에서 복수작성된 예비가격 15개 중 전원이 2개씩 추첨해서 가장 많이 선택된 4개의 산술평균: 예정가격
+(이론적으로 조달청 기준 나올 수 있는 예정가격 사정율은 98.3993~101.6009)
+
+예정가격 * 낙찰하한율(87.745%): 낙찰하한가
+
+낙찰금액(금액 제외하고 만점이라는 전제)
+1) 낙찰하한가 이상이어야 함
+2) 다른 투찰 금액보다 낮아야 함
+를 만족하는 최대 금액
+
+결국
+예정가격을 통계적으로 추정해야함
+다른 투찰 금액 중 최소 금액을 추정해야함
+
+## 판다스로 데이터 확인 ##
+import pandas as pd
+study = pd.read_csv('practice.csv')
+print(study.shape)
+study
+
+## 독립 및 종속변수 설정 ##
+basicAmount_study = study[['Basic Amount']]
+estimatedPrice_study = study[['Estimated Price']]
+priceRange_study = study[['Price range']]
+lowerBidRate_study = study[['Lower bid rate']]
+successfulBidAmount_study = study[['Successful bid amount']]
+
+print(basicAmount_study.shape, estimatedPrice_study.shape, priceRange_study.shape, lowerBidRate_study.shape, successfulBidAmount_study.shape)
+print(basicAmount_study.head(2))
+print(estimatedPrice_study.head(2))
+print(priceRange_study.head(2))
+print(lowerBidRate_study.head(2))
+print(successfulBidAmount_study.head(2))
+
+#!pip install tensorflow
+# 모델을 생성합니다. 
+import tensorflow as tf
+
+# 여기부터
+X = tf.keras.layers.Input(shape=[1])
+Y = tf.keras.layers.Dense(1)(X)
+model = tf.keras.models.Model(X, Y)
+model.compile(loss="rmse")
+# 여기까지 모델 설계 수정 필요
+
+# 모델에 데이터를 학습합니다. 
+model.fit(basicAmount_study, estimatedPrice_study, priceRange_study, lowerBidRate_study, successfulBidAmount_study, epochs=100, verbose=0)
+
+model.get_weights()
+
+# 모델을 이용합니다. 
+model.predict(basicAmount_study.head(2), estimatedPrice_study.head(2), priceRange_study.head(2), lowerBidRate_study.head(2), successfulBidAmount_study.head(2))
+
